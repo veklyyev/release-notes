@@ -4,8 +4,10 @@ import model.Environment;
 import model.PRInfo;
 
 import java.io.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 class Report {
     private static final String beginning = "<!DOCTYPE html>\n" +
@@ -19,16 +21,21 @@ class Report {
         StringBuilder reportText = new StringBuilder();
         reportText.append(beginning);
 
-        for(Map.Entry<Environment, List<PRInfo>> entry: prsInfo.entrySet()){
-            reportText.append("<h2>Environment: ").append(entry.getKey().getName()).append("</h2>");
-            reportText.append("<p>Build date: ").append(entry.getKey().getBuildDate()).append("</p>");
-            reportText.append("<p>Build version: ").append(entry.getKey().getBuildVersion()).append("</p>");
+        List<Environment> environments = prsInfo.keySet().stream()
+                .sorted(Comparator.comparing(Environment::getBuildDate).reversed())
+                .collect(Collectors.toList());
+
+        for(Environment env: environments){
+            List<PRInfo> pullRequests = prsInfo.get(env);
+            reportText.append("<h2>Environment: ").append(env.getName()).append("</h2>");
+            reportText.append("<p>Build date: ").append(env.getBuildDate()).append("</p>");
+            reportText.append("<p>Build version: ").append(env.getBuildVersion()).append("</p>");
             reportText.append("<ul>");
-            for(PRInfo info: entry.getValue()){
+            for(PRInfo pr: pullRequests){
                 reportText.append("<li>");
-                reportText.append(info.getPRTitle()).append(" -\n");
-                reportText.append(info.getAssignee()).append(" -\n");
-                reportText.append(info.getStatus());
+                reportText.append(pr.getPRTitle()).append(" -\n");
+                reportText.append(pr.getAssignee()).append(" -\n");
+                reportText.append(pr.getStatus());
                 reportText.append("</li>");
             }
             reportText.append("</ul>");
