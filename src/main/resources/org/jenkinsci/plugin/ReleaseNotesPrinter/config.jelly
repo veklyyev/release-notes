@@ -1,0 +1,22 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+    <f:section title="Jira">
+      <f:entry title="Jira link" field="jiraLink"><f:textbox default="enter link"/></f:entry>
+    </f:section>
+
+    <f:section title="GitHub">
+      <f:entry title="GitHub repository name" field="ghRepositoryName"><f:textbox default="enter link"/></f:entry>
+      <f:entry title="GitHub organization name" field="ghOrganizationName"><f:textbox default="enter token"/></f:entry>
+      <f:entry title="Jira key regex" field="jiraKeyRegex"><f:textbox/></f:entry>
+    </f:section>
+
+    <f:section title="API">
+      <f:entry title="Build date regex" field="buildDateRegex"><f:textbox/></f:entry>
+      <f:entry title="Build version regex" field="buildVersionRegex"><f:textbox/></f:entry>
+      <f:entry title="DEV url" field="devPath"><f:textbox/></f:entry>
+      <f:entry title="QA url" field="qaPath"><f:textbox/></f:entry>
+      <f:entry title="PROD url" field="prodPath"><f:textbox/></f:entry>
+    </f:section>
+
+</j:jelly>
