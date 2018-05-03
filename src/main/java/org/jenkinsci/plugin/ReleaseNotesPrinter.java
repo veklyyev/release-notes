@@ -2,6 +2,7 @@ package org.jenkinsci.plugin;
 
 import business.EnvironmentBO;
 import business.PRInfoScraper;
+import core.RestClient;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -9,6 +10,7 @@ import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
+import hudson.util.FormValidation;
 import model.Environment;
 import model.PRInfo;
 import net.rcarz.jiraclient.BasicCredentials;
@@ -17,10 +19,11 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import javax.servlet.ServletException;
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +31,6 @@ import java.util.Map;
 public class ReleaseNotesPrinter extends Builder {
     private static final Logger LOGGER = Logger.getLogger(ReleaseNotesPrinter.class.getName());
 
-    private final String jiraLink;
     private final String ghRepositoryName;
     private final String ghOrganizationName;
     private final String jiraKeyRegex;
@@ -41,10 +43,8 @@ public class ReleaseNotesPrinter extends Builder {
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public ReleaseNotesPrinter(String jiraLink, String ghRepositoryName, String ghOrganizationName, String jiraKeyRegex,
+    public ReleaseNotesPrinter(String ghRepositoryName, String ghOrganizationName, String jiraKeyRegex,
                                String buildDateRegex, String buildVersionRegex,String devPath, String qaPath, String prodPath) {
-        LOGGER.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
-        this.jiraLink = jiraLink;
         this.ghRepositoryName = ghRepositoryName;
         this.ghOrganizationName = ghOrganizationName;
         this.jiraKeyRegex = jiraKeyRegex;
@@ -58,10 +58,6 @@ public class ReleaseNotesPrinter extends Builder {
     /**
      * Get values from <tt>config.jelly</tt>.
      */
-
-    public String getJiraLink() {
-        return jiraLink;
-    }
 
     public String getGhRepositoryName() {
         return ghRepositoryName;
@@ -112,7 +108,7 @@ public class ReleaseNotesPrinter extends Builder {
         listener.getLogger().println("[Release notes] Getting PR data");
 
         GitHub gitHub = GitHub.connectUsingPassword(getDescriptor().getGhLogin(), getDescriptor().getGhPassword());
-        JiraClient jira = new JiraClient(getJiraLink(), new BasicCredentials(getDescriptor().getJiraUsername(),
+        JiraClient jira = new JiraClient(getDescriptor().getJiraLink(), new BasicCredentials(getDescriptor().getJiraUsername(),
                 getDescriptor().getJiraPassword()));
         List<Environment> environments = new EnvironmentBO().getEnvironmentsFromUrls(getDevPath(), getQaPath(), getProdPath());
         PRInfoScraper scraper = new PRInfoScraper(jira, gitHub, environments);
@@ -130,6 +126,8 @@ public class ReleaseNotesPrinter extends Builder {
         System.setProperty("buildDateRegex", getBuildDateRegex());
         System.setProperty("buildVersionRegex", getBuildVersionRegex());
         System.setProperty("jiraKeyRegex", getJiraKeyRegex());
+        System.setProperty("apiUsername", getDescriptor().getApiUsername());
+        System.setProperty("apiPassword", getDescriptor().getApiPassword());
     }
 
     // Overridden for better type safety.
@@ -157,12 +155,14 @@ public class ReleaseNotesPrinter extends Builder {
          * <p>
          * If you don't want fields to be persisted, use <tt>transient</tt>.
          */
+        private String jiraLink;
         private String jiraUsername;
         private String jiraPassword;
 
         private String ghLogin;
         private String ghPassword;
 
+        private String apiHost;
         private String apiUsername;
         private String apiPassword;
 
@@ -189,16 +189,21 @@ public class ReleaseNotesPrinter extends Builder {
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             // To persist global configuration information, set that to properties and call save()
-            LOGGER.info("!!!!MAAAAAAAAAAAAAIN CLASSSSSSSSSSSSSSSS!!!!!!!!!!!!!!!!!!!!!!1");
+            jiraLink = formData.getString("jiraLink");
             jiraUsername = formData.getString("jiraUsername");
             jiraPassword = formData.getString("jiraPassword");
             ghLogin = formData.getString("ghLogin");
             ghPassword = formData.getString("ghPassword");
+            apiHost = formData.getString("apiHost");
             apiUsername = formData.getString("apiUsername");
             apiPassword = formData.getString("apiPassword");
 
             save();
             return super.configure(req,formData);
+        }
+
+        public String getJiraLink() {
+            return jiraLink;
         }
 
         public String getJiraUsername() {
@@ -217,12 +222,50 @@ public class ReleaseNotesPrinter extends Builder {
             return ghPassword;
         }
 
+        public String getApiHost() {
+            return apiHost;
+        }
+
         public String getApiUsername() {
             return apiUsername;
         }
 
         public String getApiPassword() {
             return apiPassword;
+        }
+
+        public FormValidation doTestGitHubConnection(@QueryParameter("ghLogin") final String ghLogin,
+                                               @QueryParameter("ghPassword") final String ghPassword) throws IOException, ServletException {
+            try {
+                GitHub.connectUsingPassword(ghLogin, ghPassword).getMyself();
+                return FormValidation.ok("Success");
+            } catch (Exception e) {
+                return FormValidation.error("Client error : " + e.getMessage());
+            }
+        }
+
+        public FormValidation doTestJiraConnection(@QueryParameter("jiraLink") final String jiraLink,
+                                                   @QueryParameter("jiraUsername") final String jiraUsername,
+                                                   @QueryParameter("jiraPassword") final String jiraPassword) {
+            try {
+                //TODO remove logging and jira link
+                LOGGER.info(jiraLink);
+                new JiraClient("https://jira.epam.com/jira", new BasicCredentials(jiraUsername, jiraPassword)).getIssueTypes();
+                return FormValidation.ok("Success");
+            } catch (Exception e) {
+                return FormValidation.error("Client error : " + e.getMessage());
+            }
+        }
+
+        public FormValidation doTestAPIConnection(@QueryParameter("apiHost") final String apiHost,
+                                                   @QueryParameter("apiUsername") final String apiUsername,
+                                                   @QueryParameter("apiPassword") final String apiPassword) {
+            try {
+                new RestClient().ping(apiHost, apiUsername, apiPassword);
+                return FormValidation.ok("Success");
+            } catch (Exception e) {
+                return FormValidation.error("Client error : "+e.getMessage());
+            }
         }
     }
 }
