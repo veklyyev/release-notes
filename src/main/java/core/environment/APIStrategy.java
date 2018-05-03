@@ -23,7 +23,7 @@ public class APIStrategy implements EnvPropertyExtractor {
     }
 
     public void callURL(String url){
-        jsonData = restClient.ping(url);
+        jsonData = restClient.ping(url, System.getProperty("apiUsername"), System.getProperty("apiPassword"));
     }
 
     @Override

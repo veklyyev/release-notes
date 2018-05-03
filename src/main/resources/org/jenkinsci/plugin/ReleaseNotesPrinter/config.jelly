@@ -1,10 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-    <f:section title="Jira">
-      <f:entry title="Jira link" field="jiraLink"><f:textbox default="enter link"/></f:entry>
-    </f:section>
-
     <f:section title="GitHub">
       <f:entry title="GitHub repository name" field="ghRepositoryName"><f:textbox default="enter link"/></f:entry>
       <f:entry title="GitHub organization name" field="ghOrganizationName"><f:textbox default="enter token"/></f:entry>
