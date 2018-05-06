@@ -14,5 +14,4 @@
       <f:entry title="QA url" field="qaPath"><f:textbox/></f:entry>
       <f:entry title="PROD url" field="prodPath"><f:textbox/></f:entry>
     </f:section>
-
 </j:jelly>

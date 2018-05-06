@@ -32,9 +32,9 @@ class Report {
                 ),
                 body(
                      h1("Release notes report"),
-                        h5("Report generation date: " + new Date().toString()),
+                        h5("Generated: " + new Date().toString()),
                         each(environments, environment ->
-                                div(h2("Environment: " + environment.getName()),
+                                div(h3("Environment: " + environment.getName()),
                                         p("Build date " + environment.getBuildDate().toString()),
                                         p("Build version " + environment.getBuildVersion()),
                                         ul(
