@@ -38,8 +38,6 @@ public class ScraperTest {
         prsInfo.put(qa, Arrays.asList(prInfo1, prInfo2, prInfo3, prInfo4));
         prsInfo.put(dev, Arrays.asList(prInfo1, prInfo2, prInfo3, prInfo4, prInfo5, prInfo6));
 
-
-
         Map<Environment, List<PRInfo>> prsInfoCut = PRInfoScraper.cutData(prsInfo);
 
         Assert.assertTrue("Size incorrect, found " + prsInfoCut.get(dev).size() + " Expected: 2",

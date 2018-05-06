@@ -59,35 +59,35 @@ public class ReleaseNotesPrinter extends Builder {
      * Get values from <tt>config.jelly</tt>.
      */
 
-    public String getGhRepositoryName() {
+    String getGhRepositoryName() {
         return ghRepositoryName;
     }
 
-    public String getGhOrganizationName() {
+    String getGhOrganizationName() {
         return ghOrganizationName;
     }
 
-    public String getJiraKeyRegex() {
+    String getJiraKeyRegex() {
         return jiraKeyRegex;
     }
 
-    public String getBuildDateRegex() {
+    String getBuildDateRegex() {
         return buildDateRegex;
     }
 
-    public String getBuildVersionRegex() {
+    String getBuildVersionRegex() {
         return buildVersionRegex;
     }
 
-    public String getDevPath() {
+    String getDevPath() {
         return devPath;
     }
 
-    public String getQaPath() {
+    String getQaPath() {
         return qaPath;
     }
 
-    public String getProdPath() {
+    String getProdPath() {
         return prodPath;
     }
 
@@ -202,23 +202,23 @@ public class ReleaseNotesPrinter extends Builder {
             return super.configure(req,formData);
         }
 
-        public String getJiraLink() {
+        String getJiraLink() {
             return jiraLink;
         }
 
-        public String getJiraUsername() {
+        String getJiraUsername() {
             return jiraUsername;
         }
 
-        public String getJiraPassword() {
+        String getJiraPassword() {
             return jiraPassword;
         }
 
-        public String getGhLogin() {
+        String getGhLogin() {
             return ghLogin;
         }
 
-        public String getGhPassword() {
+        String getGhPassword() {
             return ghPassword;
         }
 
@@ -226,11 +226,11 @@ public class ReleaseNotesPrinter extends Builder {
             return apiHost;
         }
 
-        public String getApiUsername() {
+        String getApiUsername() {
             return apiUsername;
         }
 
-        public String getApiPassword() {
+        String getApiPassword() {
             return apiPassword;
         }
 
